@@ -43,40 +43,55 @@ class UIManager {
 
     renderTeachers() {
         const container = document.getElementById('teachers-list');
-        if (!container) return;
+        if (!container) {
+            console.warn('UIManager: teachers-list container not found');
+            return;
+        }
+        
+        console.log('UIManager: Rendering teachers, count:', this.dataManager.teachers.length);
         
         container.innerHTML = '';
         this.dataManager.teachers.forEach((teacher, index) => {
             const div = document.createElement('div');
             div.className = 'teacher-item';
             
-            // 複数教科対応の表示
+            // 教科情報の表示
             let subjectsHtml = '';
-            let gradeInfo = '';
-            
             if (teacher.subjects && teacher.subjects.length > 0) {
                 subjectsHtml = teacher.subjects.map(subject => {
-                    const classInfo = subject.className ? ` - ${subject.className}` : '';
-                    return `<span class="subject-badge">${subject.name}${classInfo} (${subject.hours}h)</span>`;
+                    const classInfo = subject.classes ? 
+                        subject.classes.map(cls => cls.className).join(', ') : 
+                        (subject.className || '');
+                    return `<span class="subject-badge">${subject.subject} - ${classInfo}</span>`;
                 }).join('');
-                
-                if (teacher.targetGrade) {
-                    gradeInfo = `<span class="grade-info">${teacher.targetGrade}年生対象</span>`;
-                } else {
-                    gradeInfo = `<span class="grade-info">全学年平均</span>`;
-                }
-            } else {
-                // 旧形式との互換性
-                subjectsHtml = `<span class="subject-badge">${teacher.subject} (${teacher.hours}h)</span>`;
+            }
+
+            // 会議情報の表示
+            let meetingsHtml = '';
+            if (teacher.meetings && teacher.meetings.length > 0) {
+                meetingsHtml = teacher.meetings.map(meeting => 
+                    `<span class="meeting-badge">${meeting}</span>`
+                ).join('');
             }
             
+            // 学年と担任種別の表示
+            const gradeInfo = teacher.grade ? `${teacher.grade}年生` : '学年未設定';
+            const roleInfo = teacher.roleText || '種別未設定';
+            
             div.innerHTML = `
-                <div>
-                    <strong>${teacher.name}</strong>
-                    ${gradeInfo}
+                <div class="teacher-info" onclick="app.showTeacherDetails(${index})" style="cursor: pointer;">
+                    <div class="teacher-name"><strong>${teacher.name}</strong></div>
+                    <div class="teacher-details">
+                        <span class="grade-info">${gradeInfo}</span>
+                        <span class="role-info">${roleInfo}</span>
+                    </div>
                     <div class="teacher-subjects">${subjectsHtml}</div>
+                    <div class="teacher-meetings">${meetingsHtml}</div>
                 </div>
-                <button onclick="app.removeTeacher(${index})" class="remove-btn">削除</button>
+                <div class="teacher-actions">
+                    <button onclick="app.showTeacherDetails(${index})" class="info-btn">詳細</button>
+                    <button onclick="app.removeTeacher(${index})" class="remove-btn">削除</button>
+                </div>
             `;
             container.appendChild(div);
         });
@@ -118,7 +133,6 @@ class UIManager {
                     <span class="class-type-badge ${cls.type}">${typeText}</span>
                 </div>
                 <div class="class-info">
-                    生徒数: ${cls.students}人<br>
                     状態: ${activeText}
                 </div>
                 <div class="class-actions">

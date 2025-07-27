@@ -40,8 +40,16 @@ class DataManager {
                 this.classes = parsed.classes || [];
                 this.subjects = parsed.subjects || [];
                 
+                console.log('DataManager: Loaded data from storage:', {
+                    teachers: this.teachers.length,
+                    classes: this.classes.length,
+                    subjects: this.subjects.length
+                });
+                
                 // データ整合性チェック
                 this.validateData();
+            } else {
+                console.log('DataManager: No data found in storage');
             }
         } catch (error) {
             console.error('Storage load failed:', error);
@@ -71,19 +79,18 @@ class DataManager {
         this.schedule = {};
     }
 
-    // デフォルトクラスを初期化
+    // デフォルトクラスを初期化（1～6年生、各15クラス）
     initializeDefaultClasses() {
         const defaultClasses = [];
         
-        // 各学年15クラスを生成
+        // 各学年15クラスを生成（1～3年生）
         for (let grade = 1; grade <= 3; grade++) {
             for (let classNum = 1; classNum <= 15; classNum++) {
-                const className = `${grade}-${classNum}組`; // 1-1組, 1-2組, ..., 1-15組
+                const className = `${grade}年${classNum}組`; // 1年1組, 1年2組, ..., 3年15組
                 defaultClasses.push({
                     id: `${grade}-${classNum}`,
                     name: className,
                     grade: grade,
-                    students: 30,
                     type: 'regular', // 'regular' | 'special_support'
                     active: true // クラスが有効かどうか
                 });
@@ -94,7 +101,7 @@ class DataManager {
         this.saveToStorage();
     }
 
-    // 特定学年のクラスを追加
+    // 特定学年のクラスを追加（1～6年生対応）
     addGradeClasses(grade) {
         console.log(`DataManager: Adding classes for grade ${grade}`);
         
@@ -105,12 +112,11 @@ class DataManager {
         
         // 新しく15クラスを追加
         for (let classNum = 1; classNum <= 15; classNum++) {
-            const className = `${grade}-${classNum}組`;
+            const className = `${grade}年${classNum}組`;
             const newClass = {
                 id: `${grade}-${classNum}`,
                 name: className,
                 grade: grade,
-                students: 30,
                 type: 'regular',
                 active: true
             };
@@ -128,11 +134,9 @@ class DataManager {
         if (classObj) {
             classObj.type = classObj.type === 'regular' ? 'special_support' : 'regular';
             if (classObj.type === 'special_support') {
-                classObj.students = 8; // 特別支援クラスの標準人数
-                classObj.name = classObj.name.replace(/^(\d+)-(\d+)組$/, '$1-特支$2組');
+                classObj.name = classObj.name.replace(/^(\d+)年(\d+)組$/, '$1年特支$2組');
             } else {
-                classObj.students = 30;
-                classObj.name = classObj.name.replace(/^(\d+)-特支(\d+)組$/, '$1-$2組');
+                classObj.name = classObj.name.replace(/^(\d+)年特支(\d+)組$/, '$1年$2組');
             }
             this.saveToStorage();
         }

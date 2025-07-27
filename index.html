@@ -28,85 +28,126 @@
                     <h2>教師情報</h2>
                     <div class="teacher-form">
                         <div class="form-row">
-                            <input type="text" id="teacher-name" placeholder="教師名">
+                            <label for="teacher-name">教師名:</label>
+                            <input type="text" id="teacher-name" placeholder="教師名を入力">
                         </div>
-                        <div class="subjects-input">
-                            <h3>担当教科（最大3つまで）</h3>
-                            <div class="grade-selector">
-                                <label>対象学年:</label>
-                                <select id="target-grade" class="grade-select">
-                                    <option value="">全学年平均</option>
-                                    <option value="1">1年生</option>
-                                    <option value="2">2年生</option>
-                                    <option value="3">3年生</option>
-                                </select>
+                        
+                        <div class="form-section">
+                            <label>担当学年:</label>
+                            <div class="button-group grade-buttons">
+                                <button type="button" class="selection-btn grade-btn" data-grade="1">1年生</button>
+                                <button type="button" class="selection-btn grade-btn" data-grade="2">2年生</button>
+                                <button type="button" class="selection-btn grade-btn" data-grade="3">3年生</button>
                             </div>
+                            <input type="hidden" id="teacher-grade" value="">
+                        </div>
+                        
+                        <div class="form-section">
+                            <label>担任種別:</label>
+                            <div class="button-group role-buttons">
+                                <button type="button" class="selection-btn role-btn" data-role="homeroom">学級担任</button>
+                                <button type="button" class="selection-btn role-btn" data-role="assistant">副担任</button>
+                            </div>
+                            <input type="hidden" id="teacher-role" value="">
+                        </div>
+                        
+                        <div class="subjects-input">
+                            <h3>担当教科とクラス（最大3つまで）</h3>
                             <div class="subject-row" id="subject-row-1">
-                                <select id="teacher-subject-1" class="subject-select">
-                                    <option value="">教科を選択</option>
-                                    <option value="国語">国語</option>
-                                    <option value="社会">社会</option>
-                                    <option value="数学">数学</option>
-                                    <option value="理科">理科</option>
-                                    <option value="音楽">音楽</option>
-                                    <option value="美術">美術</option>
-                                    <option value="保健体育">保健体育</option>
-                                    <option value="技術・家庭">技術・家庭</option>
-                                    <option value="外国語">外国語</option>
-                                    <option value="道徳">道徳</option>
-                                    <option value="総合的な学習の時間">総合的な学習の時間</option>
-                                    <option value="特別活動">特別活動</option>
-                                </select>
-                                <select id="teacher-class-1" class="class-select">
-                                    <option value="">担当クラス選択</option>
-                                </select>
-                                <span class="calculated-hours" id="hours-display-1">-</span>
+                                <div class="subject-section">
+                                    <label>教科1:</label>
+                                    <select id="teacher-subject-1" class="subject-select">
+                                        <option value="">教科を選択</option>
+                                        <option value="国語">国語</option>
+                                        <option value="社会">社会</option>
+                                        <option value="数学">数学</option>
+                                        <option value="理科">理科</option>
+                                        <option value="音楽">音楽</option>
+                                        <option value="美術">美術</option>
+                                        <option value="保健体育">保健体育</option>
+                                        <option value="技術・家庭">技術・家庭</option>
+                                        <option value="外国語">外国語</option>
+                                        <option value="道徳">道徳</option>
+                                        <option value="総合的な学習の時間">総合的な学習の時間</option>
+                                        <option value="特別活動">特別活動</option>
+                                    </select>
+                                </div>
+                                <div class="class-selection-section">
+                                    <label>担当クラス（複数選択可）:</label>
+                                    <div id="class-checkboxes-1" class="class-checkboxes">
+                                        <!-- クラスチェックボックスがここに動的生成される -->
+                                    </div>
+                                </div>
                             </div>
                             <div class="subject-row" id="subject-row-2" style="display: none;">
-                                <select id="teacher-subject-2" class="subject-select">
-                                    <option value="">教科を選択</option>
-                                    <option value="国語">国語</option>
-                                    <option value="社会">社会</option>
-                                    <option value="数学">数学</option>
-                                    <option value="理科">理科</option>
-                                    <option value="音楽">音楽</option>
-                                    <option value="美術">美術</option>
-                                    <option value="保健体育">保健体育</option>
-                                    <option value="技術・家庭">技術・家庭</option>
-                                    <option value="外国語">外国語</option>
-                                    <option value="道徳">道徳</option>
-                                    <option value="総合的な学習の時間">総合的な学習の時間</option>
-                                    <option value="特別活動">特別活動</option>
-                                </select>
-                                <select id="teacher-class-2" class="class-select">
-                                    <option value="">担当クラス選択</option>
-                                </select>
-                                <span class="calculated-hours" id="hours-display-2">-</span>
+                                <div class="subject-section">
+                                    <label>教科2:</label>
+                                    <select id="teacher-subject-2" class="subject-select">
+                                        <option value="">教科を選択</option>
+                                        <option value="国語">国語</option>
+                                        <option value="社会">社会</option>
+                                        <option value="数学">数学</option>
+                                        <option value="理科">理科</option>
+                                        <option value="音楽">音楽</option>
+                                        <option value="美術">美術</option>
+                                        <option value="保健体育">保健体育</option>
+                                        <option value="技術・家庭">技術・家庭</option>
+                                        <option value="外国語">外国語</option>
+                                        <option value="道徳">道徳</option>
+                                        <option value="総合的な学習の時間">総合的な学習の時間</option>
+                                        <option value="特別活動">特別活動</option>
+                                    </select>
+                                </div>
+                                <div class="class-selection-section">
+                                    <label>担当クラス（複数選択可）:</label>
+                                    <div id="class-checkboxes-2" class="class-checkboxes">
+                                        <!-- クラスチェックボックスがここに動的生成される -->
+                                    </div>
+                                </div>
                                 <button type="button" class="remove-subject" onclick="removeSubjectRow(2)">削除</button>
                             </div>
                             <div class="subject-row" id="subject-row-3" style="display: none;">
-                                <select id="teacher-subject-3" class="subject-select">
-                                    <option value="">教科を選択</option>
-                                    <option value="国語">国語</option>
-                                    <option value="社会">社会</option>
-                                    <option value="数学">数学</option>
-                                    <option value="理科">理科</option>
-                                    <option value="音楽">音楽</option>
-                                    <option value="美術">美術</option>
-                                    <option value="保健体育">保健体育</option>
-                                    <option value="技術・家庭">技術・家庭</option>
-                                    <option value="外国語">外国語</option>
-                                    <option value="道徳">道徳</option>
-                                    <option value="総合的な学習の時間">総合的な学習の時間</option>
-                                    <option value="特別活動">特別活動</option>
-                                </select>
-                                <select id="teacher-class-3" class="class-select">
-                                    <option value="">担当クラス選択</option>
-                                </select>
-                                <span class="calculated-hours" id="hours-display-3">-</span>
+                                <div class="subject-section">
+                                    <label>教科3:</label>
+                                    <select id="teacher-subject-3" class="subject-select">
+                                        <option value="">教科を選択</option>
+                                        <option value="国語">国語</option>
+                                        <option value="社会">社会</option>
+                                        <option value="数学">数学</option>
+                                        <option value="理科">理科</option>
+                                        <option value="音楽">音楽</option>
+                                        <option value="美術">美術</option>
+                                        <option value="保健体育">保健体育</option>
+                                        <option value="技術・家庭">技術・家庭</option>
+                                        <option value="外国語">外国語</option>
+                                        <option value="道徳">道徳</option>
+                                        <option value="総合的な学習の時間">総合的な学習の時間</option>
+                                        <option value="特別活動">特別活動</option>
+                                    </select>
+                                </div>
+                                <div class="class-selection-section">
+                                    <label>担当クラス（複数選択可）:</label>
+                                    <div id="class-checkboxes-3" class="class-checkboxes">
+                                        <!-- クラスチェックボックスがここに動的生成される -->
+                                    </div>
+                                </div>
                                 <button type="button" class="remove-subject" onclick="removeSubjectRow(3)">削除</button>
                             </div>
                         </div>
+                        
+                        <div class="meeting-input">
+                            <h3>参加会議設定</h3>
+                            <div class="meeting-controls">
+                                <button type="button" id="manage-meetings" class="secondary-button">会議名を管理</button>
+                            </div>
+                            <div class="meeting-section">
+                                <label>参加する会議:</label>
+                                <div id="meeting-checkboxes" class="meeting-checkboxes">
+                                    <!-- 会議チェックボックスが動的に生成される -->
+                                </div>
+                            </div>
+                        </div>
+                        
                         <button id="add-teacher" class="primary-button">教師を追加</button>
                     </div>
                     
@@ -121,10 +162,34 @@
                     <h2>クラス管理</h2>
                     <div class="class-management">
                         <div class="class-controls">
-                            <button id="init-default-classes" class="primary-button">デフォルトクラス初期化</button>
-                            <button id="add-grade-1" class="grade-button">1年生</button>
-                            <button id="add-grade-2" class="grade-button">2年生</button>
-                            <button id="add-grade-3" class="grade-button">3年生</button>
+                            <button id="init-default-classes" class="primary-button">デフォルトクラス初期化（1～3年 各15クラス）</button>
+                            
+                            <div class="grade-view-controls">
+                                <h3>表示切り替え</h3>
+                                <div class="grade-view-buttons">
+                                    <button id="view-all-classes" class="grade-view-button special" data-grade="all">全クラス表示</button>
+                                    <button id="view-grade-1" class="grade-view-button active" data-grade="1">1年生</button>
+                                    <button id="view-grade-2" class="grade-view-button" data-grade="2">2年生</button>
+                                    <button id="view-grade-3" class="grade-view-button" data-grade="3">3年生</button>
+                                </div>
+                            </div>
+                            
+                            <div class="class-management-tools">
+                                <h3>クラス管理ツール</h3>
+                                <div class="management-buttons">
+                                    <button id="bulk-delete-inactive" class="danger-button">無効クラスを一括削除</button>
+                                    <button id="bulk-toggle-special" class="secondary-button">選択クラスを特別支援に変更</button>
+                                </div>
+                            </div>
+                            
+                            <div class="grade-management">
+                                <h3>学年別クラス管理</h3>
+                                <div class="grade-buttons">
+                                    <button id="add-grade-1" class="grade-button">1年生追加</button>
+                                    <button id="add-grade-2" class="grade-button">2年生追加</button>
+                                    <button id="add-grade-3" class="grade-button">3年生追加</button>
+                                </div>
+                            </div>
                         </div>
                         <div id="classes-grid" class="classes-grid"></div>
                     </div>
@@ -383,6 +448,8 @@
             }
         };
     </script>
+    <script src="./modules/dataManager.js"></script>
+    <script src="./modules/uiManager.js"></script>
     <script src="./script.js"></script>
 </body>
 </html>
