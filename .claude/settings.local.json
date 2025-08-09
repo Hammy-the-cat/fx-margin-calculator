@@ -54,7 +54,8 @@
       "WebFetch(domain:www.exchangerate-api.com)",
       "WebFetch(domain:app.exchangerate-api.com)",
       "Bash(git mv:*)",
-      "Bash(gh repo view:*)"
+      "Bash(gh repo view:*)",
+      "WebFetch(domain:hammy-the-cat.github.io)"
     ],
     "deny": []
   }
