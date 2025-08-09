@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX必要証拠金計算機</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+                        0 0 0 1px rgba(255, 255, 255, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+            animation: containerEntry 0.8s ease-out;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 1.5s ease;
+        }
+
+        .container:hover::before {
+            left: 100%;
+        }
+
+        @keyframes containerEntry {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        h1, h2 {
+            text-align: center;
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5, #00d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 28px;
+            animation: titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        h2 {
+            font-size: 22px;
+        }
+
+        @keyframes titleGlow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(0, 210, 255, 0.3));
+            }
+            to {
+                filter: drop-shadow(0 0 30px rgba(58, 123, 213, 0.5));
+            }
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .form-group:nth-child(2) { animation-delay: 0.1s; }
+        .form-group:nth-child(3) { animation-delay: 0.2s; }
+        .form-group:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 500;
+            color: #e2e8f0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        label::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 3px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.6);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            font-size: 16px;
+            color: #f8fafc;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-family: 'Inter', sans-serif;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 4px rgba(0, 210, 255, 0.1),
+                        0 0 20px rgba(0, 210, 255, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        select:hover, input:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #f8fafc;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, 
+                        rgba(0, 210, 255, 0.1), 
+                        rgba(58, 123, 213, 0.1));
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-radius: 20px;
+            padding: 28px;
+            margin-top: 32px;
+            position: relative;
+            overflow: hidden;
+            animation: resultEntry 0.8s ease-out 0.4s both;
+        }
+
+        .result-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 210, 255, 0.05) 50%, transparent 70%);
+            animation: resultShimmer 3s linear infinite;
+        }
+
+        @keyframes resultShimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes resultEntry {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff88, #00d2ff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 0.7);
+            filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.4));
+        }
+
+        .disclaimer {
+            margin-top: 32px;
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.6;
+            opacity: 0.8;
+        }
+
+        /* スクロールバーのスタイリング */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            
+            .container {
+                margin: 0;
+                padding: 24px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+            
+            h2 {
+                font-size: 20px;
+            }
+
+            .result-value {
+                font-size: 32px;
+            }
+            
+            select, input {
+                padding: 14px 16px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FX必要証拠金計算機</h1>
+
+        <div class="form-group">
+            <label for="currencyPair">通貨ペア</label>
+            <select id="currencyPair">
+                <option value="USDJPY">USD/JPY</option>
+                <option value="EURJPY">EUR/JPY</option>
+                <option value="GBPJPY">GBP/JPY</option>
+                <option value="AUDJPY">AUD/JPY</option>
+                <option value="NZDJPY">NZD/JPY</option>
+                <option value="CADJPY">CAD/JPY</option>
+                <option value="CHFJPY">CHF/JPY</option>
+                <option value="EURUSD">EUR/USD</option>
+                <option value="GBPUSD">GBP/USD</option>
+                <option value="AUDUSD">AUD/USD</option>
+                <option value="NZDUSD">NZD/USD</option>
+                <option value="USDCAD">USD/CAD</option>
+                <option value="USDCHF">USD/CHF</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="leverage">レバレッジ</label>
+            <input type="number" id="leverage" value="25" min="1" max="1000" placeholder="25">
+        </div>
+
+        <div class="form-group">
+            <label for="lotSize">ロット数</label>
+            <input type="number" id="lotSize" value="1" min="0.01" step="0.01" placeholder="1">
+        </div>
+
+        <div class="result-box">
+            <div class="result-title">必要証拠金</div>
+            <div class="result-value" id="marginResult">¥600,000</div>
+        </div>
+
+        <!-- GOLD 計算セクション -->
+        <div class="container" style="margin-top: 24px;">
+            <h2 style="text-align: center; color: #1f2937; margin-bottom: 24px; font-size: 20px; font-weight: bold;">GOLD 証拠金計算</h2>
+            
+            <div class="form-group">
+                <label for="goldPrice">GOLD価格（USD/oz）</label>
+                <input type="number" id="goldPrice" value="2650" min="1" step="0.01" placeholder="2650">
+            </div>
+
+            <div class="form-group">
+                <label for="goldLeverage">レバレッジ</label>
+                <input type="number" id="goldLeverage" value="25" min="1" max="1000" placeholder="25">
+            </div>
+
+            <div class="form-group">
+                <label for="goldLotSize">ロット数</label>
+                <input type="number" id="goldLotSize" value="1" min="0.01" step="0.01" placeholder="1">
+            </div>
+
+            <div class="result-box">
+                <div class="result-title">GOLD 必要証拠金</div>
+                <div class="result-value" id="goldMarginResult">¥600,000</div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            ※固定為替レートを使用した計算です<br>
+            実際の取引では最新のレートをご確認ください
+        </div>
+    </div>
+
+    <script>
+        // フォールバック用の固定為替レート
+        const fallbackRates = {
+            'USDJPY': { base: 150.0, quote: null },
+            'EURJPY': { base: 163.5, quote: null },
+            'GBPJPY': { base: 190.2, quote: null },
+            'AUDJPY': { base: 97.8, quote: null },
+            'NZDJPY': { base: 89.5, quote: null },
+            'CADJPY': { base: 109.2, quote: null },
+            'CHFJPY': { base: 168.7, quote: null },
+            'EURUSD': { base: 163.5, quote: 150.0 },
+            'GBPUSD': { base: 190.2, quote: 150.0 },
+            'AUDUSD': { base: 97.8, quote: 150.0 },
+            'NZDUSD': { base: 89.5, quote: 150.0 },
+            'USDCAD': { base: 150.0, quote: 109.2 },
+            'USDCHF': { base: 150.0, quote: 168.7 }
+        };
+
+        // リアルタイム為替レート
+        let exchangeRates = {...fallbackRates};
+        let isRealTimeDataLoaded = false;
+
+        // リアルタイム為替レートを取得
+        async function fetchRealTimeRates() {
+            try {
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                if (!response.ok) throw new Error('API response not ok');
+                
+                const data = await response.json();
+                const rates = data.rates;
+                
+                // 為替レートを更新（USD基準のレートから各通貨ペアのレートを計算）
+                exchangeRates = {
+                    'USDJPY': { base: rates.JPY, quote: null },
+                    'EURJPY': { base: rates.JPY / rates.EUR, quote: null },
+                    'GBPJPY': { base: rates.JPY / rates.GBP, quote: null },
+                    'AUDJPY': { base: rates.JPY / rates.AUD, quote: null },
+                    'NZDJPY': { base: rates.JPY / rates.NZD, quote: null },
+                    'CADJPY': { base: rates.JPY / rates.CAD, quote: null },
+                    'CHFJPY': { base: rates.JPY / rates.CHF, quote: null },
+                    'EURUSD': { base: rates.JPY / rates.EUR, quote: rates.JPY },
+                    'GBPUSD': { base: rates.JPY / rates.GBP, quote: rates.JPY },
+                    'AUDUSD': { base: rates.JPY / rates.AUD, quote: rates.JPY },
+                    'NZDUSD': { base: rates.JPY / rates.NZD, quote: rates.JPY },
+                    'USDCAD': { base: rates.JPY, quote: rates.JPY / rates.CAD },
+                    'USDCHF': { base: rates.JPY, quote: rates.JPY / rates.CHF }
+                };
+                
+                isRealTimeDataLoaded = true;
+                updateDisclaimer();
+                calculateMargin(); // 新しいレートで再計算
+                
+            } catch (error) {
+                console.warn('リアルタイムレート取得失敗:', error);
+                exchangeRates = {...fallbackRates};
+                isRealTimeDataLoaded = false;
+                updateDisclaimer();
+            }
+        }
+
+        // 免責事項を更新
+        function updateDisclaimer() {
+            const disclaimerElement = document.querySelector('.disclaimer');
+            if (isRealTimeDataLoaded) {
+                disclaimerElement.innerHTML = '※リアルタイム為替レートを使用<br>データは1日1回更新されます';
+            } else {
+                disclaimerElement.innerHTML = '※固定為替レートを使用した計算です<br>実際の取引では最新のレートをご確認ください';
+            }
+        }
+
+        function calculateMargin() {
+            const currencyPair = document.getElementById('currencyPair').value;
+            const leverage = parseFloat(document.getElementById('leverage').value) || 25;
+            const lotSize = parseFloat(document.getElementById('lotSize').value) || 1;
+
+            const contractSize = 100000; // 通常の通貨ペア: 1ロット = 10万通貨
+            const rates = exchangeRates[currencyPair];
+
+            let marginInJPY = 0;
+
+            if (currencyPair.endsWith('JPY')) {
+                // 円建て通貨ペア（例：USD/JPY）
+                const baseToJPY = rates.base;
+                marginInJPY = (contractSize * lotSize * baseToJPY) / leverage;
+            } else {
+                // クロス通貨ペア（例：EUR/USD）
+                const baseToJPY = rates.base;
+                marginInJPY = (contractSize * lotSize * baseToJPY) / leverage;
+            }
+
+            // 結果を表示
+            const resultElement = document.getElementById('marginResult');
+            resultElement.textContent = '¥' + Math.round(marginInJPY).toLocaleString();
+        }
+
+        // GOLD計算専用関数
+        function calculateGoldMargin() {
+            const goldPrice = parseFloat(document.getElementById('goldPrice').value) || 2650;
+            const goldLeverage = parseFloat(document.getElementById('goldLeverage').value) || 25;
+            const goldLotSize = parseFloat(document.getElementById('goldLotSize').value) || 1;
+            
+            const contractSize = 100; // GOLD: 1ロット = 100オンス
+            const usdToJpy = exchangeRates['USDJPY']?.base || 150; // USD/JPYレート
+            
+            // GOLD価格 × ロット数 × コントラクトサイズ × USD/JPYレート ÷ レバレッジ
+            const marginInJPY = (goldPrice * goldLotSize * contractSize * usdToJpy) / goldLeverage;
+
+            // 結果を表示
+            const resultElement = document.getElementById('goldMarginResult');
+            resultElement.textContent = '¥' + Math.round(marginInJPY).toLocaleString();
+        }
+
+        // イベントリスナーを追加
+        document.getElementById('currencyPair').addEventListener('change', calculateMargin);
+        document.getElementById('leverage').addEventListener('input', calculateMargin);
+        document.getElementById('lotSize').addEventListener('input', calculateMargin);
+
+        // GOLD専用イベントリスナーを追加
+        document.getElementById('goldPrice').addEventListener('input', calculateGoldMargin);
+        document.getElementById('goldLeverage').addEventListener('input', calculateGoldMargin);
+        document.getElementById('goldLotSize').addEventListener('input', calculateGoldMargin);
+
+        // 初期化処理
+        async function initialize() {
+            await fetchRealTimeRates();
+            calculateMargin();
+            calculateGoldMargin();
+        }
+
+        // ページ読み込み時に実行
+        initialize();
+    </script>
+</body>
+</html>
